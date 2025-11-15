@@ -13,7 +13,6 @@ pipeline {
   }
 
   stages {
-
     stage('Checkout Code') {
       steps {
         checkout scm
@@ -31,20 +30,20 @@ pipeline {
     }
 
     stage('Run Selenium Tests Only') {
-    steps {
+      steps {
         echo "Running Selenium Web Automation Tests..."
 
         bat """
-            powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
-            powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
+          powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
+          powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
         """
 
         bat """
-            %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests -q
+          %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests -q
         """
-        }
+      }
     }
-
+  }
 
   post {
     always {
