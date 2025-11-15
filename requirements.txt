@@ -7,3 +7,4 @@ requests
 mysql-connector-python
 appium-python-client
 openpyxl
+pytest-html
