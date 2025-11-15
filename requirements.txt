@@ -1,0 +1,9 @@
+selenium>=4.10.0
+webdriver-manager>=4.0.0
+pytest>=8.0.0
+pytest-xdist
+allure-pytest
+requests
+mysql-connector-python
+appium-python-client
+openpyxl

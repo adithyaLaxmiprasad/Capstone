@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+ENV/
+
+# PyCharm
+.idea/
+
+# pytest / reports
+reports/
+allure-report/
+allure-results/
+screenshots/
+.report.html
+
+# database files, credentials
+*.db
+*.sqlite3
+*.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
