@@ -2,14 +2,12 @@ pipeline {
   agent any
 
   environment {
-    // NAME of the Jenkins credential that holds GitHub token (optional)
     GITHUB_TOKEN_CREDENTIAL = 'github-token'
-    // Directory for virtualenv (relative)
     VENV_DIR = 'venv'
+    PYTHON_EXE = 'C:\\Users\\adithya.l\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
   }
 
   options {
-    // keep logs
     ansiColor('xterm')
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '25'))
@@ -25,7 +23,6 @@ pipeline {
     stage('Prepare Python') {
       steps {
         script {
-          // create virtualenv and install requirements
           if (isUnix()) {
             sh '''
               python -m venv ${VENV_DIR}
@@ -35,7 +32,7 @@ pipeline {
             '''
           } else {
             bat """
-              python -m venv %VENV_DIR%
+              "%PYTHON_EXE%" -m venv %VENV_DIR%
               %VENV_DIR%\\Scripts\\pip.exe install --upgrade pip
               %VENV_DIR%\\Scripts\\pip.exe install -r requirements.txt
             """
@@ -54,8 +51,7 @@ pipeline {
             '''
           } else {
             bat """
-              %VENV_DIR%\\Scripts\\activate
-              pytest banking_app\\tests -q || exit /b 0
+              %VENV_DIR%\\Scripts\\python.exe -m pytest banking_app\\tests -q || exit /b 0
             """
           }
         }
@@ -65,23 +61,20 @@ pipeline {
     stage('Run Selenium + Appium Tests (Functional)') {
       steps {
         script {
-          // Clear previous allure results
-          sh 'rm -rf selenium_framework/reports/allure-results || true'
-          sh 'mkdir -p selenium_framework/reports/allure-results || true' // unix
-        }
-        // Run tests and collect results
-        script {
           if (isUnix()) {
             sh '''
+              rm -rf selenium_framework/reports/allure-results || true
+              mkdir -p selenium_framework/reports/allure-results || true
               . ${VENV_DIR}/bin/activate
               pytest selenium_framework/tests -n 2 --alluredir=selenium_framework/reports/allure-results -q
               pytest mobile_tests -q || true
             '''
           } else {
             bat """
-              %VENV_DIR%\\Scripts\\activate
-              pytest selenium_framework\\tests --alluredir=selenium_framework\\reports\\allure-results -q
-              pytest mobile_tests -q || exit /b 0
+              powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
+              powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
+              %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests --alluredir=selenium_framework\\reports\\allure-results -q
+              %VENV_DIR%\\Scripts\\python.exe -m pytest mobile_tests -q || exit /b 0
             """
           }
         }
@@ -93,7 +86,6 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
-              # generate static report for archiving
               allure generate selenium_framework/reports/allure-results -o selenium_framework/reports/allure-report --clean || true
             '''
           } else {
@@ -107,7 +99,7 @@ pipeline {
       post {
         always {
           archiveArtifacts artifacts: 'selenium_framework/reports/allure-report/**', fingerprint: true
-          junit allowEmptyResults: true, testResults: '**/test-results.xml' // if you produce junit xml
+          junit allowEmptyResults: true, testResults: '**/test-results.xml'
         }
       }
     }
