@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/banking_sql/insert_sample_data.sql" value="d92a55ae-4460-4d26-814e-65ea4d0d1bda" />
+    <file url="file://$PROJECT_DIR$/banking_sql/queries.sql" value="d92a55ae-4460-4d26-814e-65ea4d0d1bda" />
+    <file url="file://$PROJECT_DIR$/banking_sql/stored_procedures.sql" value="d92a55ae-4460-4d26-814e-65ea4d0d1bda" />
+    <file url="file://$PROJECT_DIR$/banking_sql/views.sql" value="d92a55ae-4460-4d26-814e-65ea4d0d1bda" />
+  </component>
+</project>

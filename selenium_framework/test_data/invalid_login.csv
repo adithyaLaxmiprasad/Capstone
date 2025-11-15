@@ -1,0 +1,5 @@
+email,password
+wrong@mail.com,wrongpass
+invalid@gmail.com,12345
+,admin
+admin@yourstore.com,

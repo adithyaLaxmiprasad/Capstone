@@ -1,0 +1,4 @@
+[32mINFO    [0m AutomationLogger:test_login.py:10 Opening Admin login page
+[32mINFO    [0m AutomationLogger:test_login.py:13 Attempting login with valid credentials
+[32mINFO    [0m AutomationLogger:test_login.py:18 Verifying dashboard
+[32mINFO    [0m AutomationLogger:test_login.py:21 Login test passed

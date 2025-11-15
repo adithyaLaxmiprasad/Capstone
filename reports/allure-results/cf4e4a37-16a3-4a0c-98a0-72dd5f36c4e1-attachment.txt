@@ -1,0 +1,2 @@
+Add to cart message: The product has been added to your shopping cart
+ Found 1 items in the cart.
