@@ -66,40 +66,17 @@ pipeline {
               rm -rf selenium_framework/reports/allure-results || true
               mkdir -p selenium_framework/reports/allure-results || true
               . ${VENV_DIR}/bin/activate
-              pytest selenium_framework/tests -n 2 --alluredir=selenium_framework/reports/allure-results -q
+              pytest selenium_framework/tests -n 2 -q
               pytest mobile_tests -q || true
             '''
           } else {
             bat """
               powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
               powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
-              %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests --alluredir=selenium_framework\\reports\\allure-results -q
+              %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests -q
               %VENV_DIR%\\Scripts\\python.exe -m pytest mobile_tests -q || exit /b 0
             """
           }
-        }
-      }
-    }
-
-    stage('Generate Allure Report') {
-      steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              allure generate selenium_framework/reports/allure-results -o selenium_framework/reports/allure-report --clean || true
-            '''
-          } else {
-            bat """
-              powershell -Command "if(!(Test-Path selenium_framework\\reports\\allure-results)){Write-Host 'no allure results'}"
-              allure generate selenium_framework\\reports\\allure-results -o selenium_framework\\reports\\allure-report --clean || echo "allure generate failed"
-            """
-          }
-        }
-      }
-      post {
-        always {
-          archiveArtifacts artifacts: 'selenium_framework/reports/allure-report/**', fingerprint: true
-          junit allowEmptyResults: true, testResults: '**/test-results.xml'
         }
       }
     }
