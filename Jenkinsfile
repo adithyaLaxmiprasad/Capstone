@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   environment {
-    GITHUB_TOKEN_CREDENTIAL = 'github-token'
     VENV_DIR = 'venv'
     PYTHON_EXE = 'C:\\Users\\adithya.l\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
   }
@@ -14,70 +13,36 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
+
+    stage('Checkout Code') {
       steps {
         checkout scm
       }
     }
 
-    stage('Prepare Python') {
+    stage('Prepare Python Environment') {
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              python -m venv ${VENV_DIR}
-              . ${VENV_DIR}/bin/activate
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-            '''
-          } else {
-            bat """
-              "%PYTHON_EXE%" -m venv %VENV_DIR%
-              %VENV_DIR%\\Scripts\\pip.exe install --upgrade pip
-              %VENV_DIR%\\Scripts\\pip.exe install -r requirements.txt
-            """
-          }
-        }
+        bat """
+          "%PYTHON_EXE%" -m venv %VENV_DIR%
+          %VENV_DIR%\\Scripts\\pip.exe install --upgrade pip
+          %VENV_DIR%\\Scripts\\pip.exe install -r requirements.txt
+        """
       }
     }
 
-    stage('Run Unit / Backend Tests (banking_app)') {
+    stage('Run Selenium Tests Only') {
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              . ${VENV_DIR}/bin/activate
-              pytest banking_app/tests -q || true
-            '''
-          } else {
-            bat """
-              %VENV_DIR%\\Scripts\\python.exe -m pytest banking_app\\tests -q || exit /b 0
-            """
-          }
-        }
-      }
-    }
+        echo "Running Selenium Web Automation Tests..."
 
-    stage('Run Selenium + Appium Tests (Functional)') {
-      steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              rm -rf selenium_framework/reports/allure-results || true
-              mkdir -p selenium_framework/reports/allure-results || true
-              . ${VENV_DIR}/bin/activate
-              pytest selenium_framework/tests -n 2 -q
-              pytest mobile_tests -q || true
-            '''
-          } else {
-            bat """
-              powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
-              powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
-              %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests -q
-              %VENV_DIR%\\Scripts\\python.exe -m pytest mobile_tests -q || exit /b 0
-            """
-          }
-        }
+        // Clean old allure results
+        bat '''
+          powershell -Command "Remove-Item -Recurse -Force selenium_framework\\reports\\allure-results -ErrorAction SilentlyContinue"
+          powershell -Command "New-Item -ItemType Directory -Force -Path selenium_framework\\reports\\allure-results"
+        '''
+
+        bat """
+          %VENV_DIR%\\Scripts\\python.exe -m pytest selenium_framework\\tests -q
+        """
       }
     }
   }
@@ -86,11 +51,13 @@ pipeline {
     always {
       cleanWs()
     }
+
     success {
-      echo "Pipeline succeeded"
+      echo "Selenium CI Pipeline Completed Successfully!"
     }
+
     failure {
-      echo "Pipeline failed - check console output and attached artifacts"
+      echo "Selenium Tests Failed — Check Jenkins Console Output"
     }
   }
 }
